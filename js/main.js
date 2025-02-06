@@ -93,8 +93,8 @@ function editItem(column, cardIndex, itemIndex, newText) {
 }
 
 function customizeCard(column, index) {
-    const bgColor = prompt('Введите цвет фона (например, #ff0000):', cards['column' + column][index].bgColor); // Запрашиваем цвет фона
-    const textColor = prompt('Введите цвет текста (например, #000000):', cards['column' + column][index].textColor); // Запрашиваем цвет текста
+    const bgColor = prompt('Введите цвет фона (например, red, green, blue):', cards['column' + column][index].bgColor); // Запрашиваем цвет фона
+    const textColor = prompt('Введите цвет текста (например, red, green, blue):', cards['column' + column][index].textColor); // Запрашиваем цвет текста
     cards['column' + column][index].bgColor = bgColor; // Обновляем цвет фона карточки
     cards['column' + column][index].textColor = textColor; // Обновляем цвет текста карточки
     saveAndRender(); // Сохраняем изменения и обновляем отображение
