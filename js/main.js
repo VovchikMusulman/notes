@@ -58,12 +58,25 @@ function addCard(column) {
     saveAndRender();
 }
 
-function editCard Title(column, index, newTitle) {
+function editCardTitle(column, index, newTitle) {
     cards['column' + column][index].title = newTitle;
     saveAndRender();
 }
 
 function editCardDescription(column, index, newDescription) {
     cards['column' + column][index].description = newDescription;
+    saveAndRender();
+}
+
+function editItem(column, cardIndex, itemIndex, newText) {
+    cards['column' + column][cardIndex].items[itemIndex].text = newText;
+    saveAndRender();
+}
+
+function customizeCard(column, index) {
+    const bgColor = prompt('Введите цвет фона (например, #ff0000):', cards['column' + column][index].bgColor);
+    const textColor = prompt('Введите цвет текста (например, #000000):', cards['column' + column][index].textColor);
+    cards['column' + column][index].bgColor = bgColor;
+    cards['column' + column][index].textColor = textColor;
     saveAndRender();
 }
