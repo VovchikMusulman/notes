@@ -1,9 +1,6 @@
-// Загружаем карточки из localStorage или инициализируем пустые столбцы
 let cards = JSON.parse(localStorage.getItem('cards')) || { column1: [], column2: [], column3: [] };
 
-// Функция для отображения карточек на странице
 function render() {
-    // Очищаем содержимое всех столбцов перед рендерингом
     document.getElementById('cards1').innerHTML = '';
     document.getElementById('cards2').innerHTML = '';
     document.getElementById('cards3').innerHTML = '';
@@ -22,10 +19,16 @@ function render() {
     cards.column3.forEach((card, index) => {
         document.getElementById('cards3').innerHTML += createCardHTML(card, index, 3);
     });
+
+    // Скрываем или показываем кнопки добавления карточек в зависимости от количества карточек
+    document.getElementById('addCardButton1').style.display = cards.column1.length < 3 ? 'block' : 'none';
+    document.getElementById('addCardButton2').style.display = cards.column2.length < 5 ? 'block' : 'none';
 }
 
 // Функция для создания HTML-кода карточки
 function createCardHTML(card, index, column) {
+    const canMoveToNextColumn = (column === 1 && cards.column2.length < 5) || (column === 2 && cards.column3.length < 5);
+
     return `
         <div class="card" style="background-color: ${card.bgColor}; color: ${card.textColor};">
             <h3 contenteditable="true" onblur="editCardTitle(${column}, ${index}, this.innerText)">${card.title}</h3>
@@ -33,26 +36,32 @@ function createCardHTML(card, index, column) {
             <ul>
                 ${card.items.map((item, i) => `
                     <li>
-                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleItem(${column}, ${index}, ${i})">
+                        <input type="checkbox" ${item.completed ? 'checked' : ''} onchange="toggleItem(${column}, ${index}, ${i})" ${canMoveToNextColumn ? '' : 'disabled'}>
                         <span contenteditable="true" onblur="editItem(${column}, ${index}, ${i}, this.innerText)">${item.text}</span>
                     </li>
                 `).join('')}
             </ul>
             <button onclick="customizeCard(${column}, ${index})">Кастомизировать</button>
             ${card.completedDate ? `<p>Завершено: ${card.completedDate}</p>` : ''}
-            ${column === 1 && cards.column2.length < 5 ? '<button onclick="deleteCard(1, ' + index + ')">Удалить</button>' : ''}
         </div>
     `;
 }
 
-// Функция для добавления новой карточки
 function addCard(column) {
     const title = prompt('Введите заголовок карточки:'); // Запрашиваем заголовок карточки
+    let numberOfItems; // Переменная для хранения количества пунктов
+
+    // Запрашиваем количество пунктов, пока пользователь не введет корректное значение
+    do {
+        numberOfItems = parseInt(prompt('Введите количество пунктов списка (от 3 до 5):'), 10);
+    } while (isNaN(numberOfItems) || numberOfItems < 3 || numberOfItems > 5);
+
     const items = []; // Массив для хранения пунктов списка
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < numberOfItems; i++) {
         const itemText = prompt(`Введите текст пункта списка ${i + 1}:`); // Запрашиваем текст для каждого пункта
         items.push({ text: itemText, completed: false }); // Добавляем пункт в массив
     }
+
     // Создаем новую карточку с заданными свойствами
     const newCard = { title, items, bgColor: '#fff', textColor: '#000', description: '' };
 
@@ -68,34 +77,29 @@ function addCard(column) {
     saveAndRender(); // Сохраняем данные и обновляем отображение
 }
 
-// Функция для редактирования заголовка карточки
 function editCardTitle(column, index, newTitle) {
     cards['column' + column][index].title = newTitle; // Обновляем заголовок карточки
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для редактирования описания карточки
 function editCardDescription(column, index, newDescription) {
-    cards['column' + column ][index].description = newDescription; // Обновляем описание карточки
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    cards['column' + column][index].description = newDescription; // Обновляем описание карточки
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для редактирования текста пункта списка
 function editItem(column, cardIndex, itemIndex, newText) {
     cards['column' + column][cardIndex].items[itemIndex].text = newText; // Обновляем текст пункта
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для кастомизации карточки (изменение цвета фона и текста)
 function customizeCard(column, index) {
     const bgColor = prompt('Введите цвет фона (например, #ff0000):', cards['column' + column][index].bgColor); // Запрашиваем цвет фона
     const textColor = prompt('Введите цвет текста (например, #000000):', cards['column' + column][index].textColor); // Запрашиваем цвет текста
     cards['column' + column][index].bgColor = bgColor; // Обновляем цвет фона карточки
     cards['column' + column][index].textColor = textColor; // Обновляем цвет текста карточки
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для переключения состояния выполнения пункта списка
 function toggleItem(column, cardIndex, itemIndex) {
     const card = cards['column' + column][cardIndex]; // Получаем карточку по индексу
     card.items[itemIndex].completed = !card.items[itemIndex].completed; // Переключаем состояние выполнения пункта
@@ -116,28 +120,25 @@ function toggleItem(column, cardIndex, itemIndex) {
             cards.column3.push(completedCard); // Перемещаем карточку в третий столбец
         }
     }
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для удаления карточки
 function deleteCard(column, index) {
     cards['column' + column].splice(index, 1); // Удаляем карточку по индексу
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция для сохранения данных в localStorage и обновления отображения
 function saveAndRender() {
     localStorage.setItem('cards', JSON.stringify(cards)); // Сохраняем карточки в localStorage
     render(); // Обновляем отображение карточек
 }
 
-// Функция для очистки всех карточек
 function clearAll() {
     cards = { column1: [], column2: [], column3: [] }; // Инициализируем пустые столбцы
-    saveAndRender(); // Сохраняем данные и обновляем отображение
+    saveAndRender(); // Сохраняем изменения и обновляем отображение
 }
 
-// Функция, которая выполняется при загрузке страницы
+// Вызов функции render при загрузке страницы
 window.onload = function() {
     render(); // Отображаем карточки при загрузке
 };
