@@ -1,50 +1,54 @@
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
 }
 
-.container {
-    display: flex;
-    justify-content: space-between;
+.columns {
+    display: flex; /* Используем Flexbox для горизонтального расположения столбцов */
+    justify-content: space-between; /* Распределяем пространство между столбцами */
 }
 
 .column {
-    border-radius: 10px;
-    width: 30%;
-    border: 1px solid #ccc;
+    width: 30%; /* Ширина каждого столбца */
+    margin: 10px; /* Отступы между столбцами */
     padding: 10px;
+    background-color: #fff; /* Цвет фона столбца */
+    border: 1px solid #ccc; /* Граница столбца */
+    border-radius: 5px; /* Закругленные углы */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень для столбца */
 }
 
 .card {
-    border-radius: 10px;
-    border: 1px solid #000;
-    margin: 10px 0;
+    margin-bottom: 10px; /* Отступ между карточками */
     padding: 10px;
-}
-
-button {
-    border-radius: 5px;
-    border: none;
-    margin-top: 10px;
-}
-
-textarea {
-    border-radius: 10px;
-    resize: none;
-}
-
-li {
-    padding: 5px;
-}
-
-ul {
-    padding: 0px;
-    list-style-type: none;
+    border: 1px solid #aaa; /* Граница карточки */
+    border-radius: 5px; /* Закругленные углы карточки */
 }
 
 h2 {
-    text-align: center;
+    text-align: center; /* Центрируем заголовок столбца */
 }
 
 h3 {
-    margin: 10px;
+    margin: 0; /* Убираем отступы у заголовка карточки */
+}
+
+button {
+    margin-top: 10px; /* Отступ сверху для кнопок */
+    border-radius: 5px; /* Закругленные углы кнопки */
+}
+
+input[type="checkbox"] {
+    margin-right: 5px; /* Отступ справа для чекбокса */
+}
+
+input[type="color"] {
+    margin-left: 10px; /* Отступ слева для выбора цвета */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
 }
