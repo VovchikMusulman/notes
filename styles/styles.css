@@ -21,10 +21,26 @@ body {
 }
 
 .card {
-    margin-bottom: 10px; /* Отступ между карточками */
     padding: 10px;
-    border: 1px solid #aaa; /* Граница карточки */
-    border-radius: 5px; /* Закругленные углы карточки */
+    margin: 10px;
+    border-radius: 5px;
+}
+
+.card:hover {
+    transform: scale(1.05); /* Увеличение карточки */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Тень при наведении */
+}
+
+.card.column-1 {
+    background-color: #f8d7da; /* Красный для первого столбца */
+}
+
+.card.column-2 {
+    background-color: #d4edda; /* Зеленый для второго столбца */
+}
+
+.card.column-3 {
+    background-color: #d1ecf1; /* Голубой для третьего столбца */
 }
 
 h2 {

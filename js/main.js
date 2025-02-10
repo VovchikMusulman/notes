@@ -1,8 +1,8 @@
 // Компонент карточки заметки
 Vue.component('note-card', {
-    props: ['card', 'isSecondColumn', 'secondColumnCardCount'],
+    props: ['card', 'isSecondColumn', 'secondColumnCardCount', 'columnIndex'],
     template: `
-        <div class="card" :style="{ backgroundColor: card.color }">
+        <div :class="['card', columnClass]">
             <input type="text" v-model="card.title" placeholder="Заголовок карточки" />
             <ul>
                 <li v-for="(item, itemIndex) in card.items" :key="itemIndex">
@@ -12,7 +12,6 @@ Vue.component('note-card', {
             </ul>
             <input type="text" v-model="newItemText" placeholder="Новый пункт списка" />
             <button @click="addItem" :disabled="itemCount >= 5">Добавить пункт</button>
-            <input type="color" v-model="card.color" />
             <p v-if="card.completedDate">Завершено: {{ card.completedDate }}</p>
         </div>
     `,
@@ -25,6 +24,10 @@ Vue.component('note-card', {
         // Вычисляемое свойство для подсчета количества пунктов в карточке
         itemCount() {
             return this.card.items.length; // Количество пунктов в карточке
+        },
+        // Вычисляемое свойство для определения класса в зависимости от индекса колонки
+        columnClass() {
+            return `column-${this.columnIndex + 1}`; // Возвращаем класс в зависимости от индекса колонки
         }
     },
     methods: {
@@ -45,7 +48,7 @@ Vue.component('note-card', {
 
 // Компонент колонки заметок
 Vue.component('note-column', {
-    props: ['column'],
+    props: ['column', 'index'],
     template: `
         <div class="column">
             <h2>{{ column.title }}</h2>
@@ -55,6 +58,7 @@ Vue.component('note-column', {
                 :card="card"
                 :isSecondColumn="column.title === 'Столбец 2'"
                 :secondColumnCardCount="getSecondColumnCardCount()"
+                :columnIndex="index"
                 @update-card="$emit('update-card', $event)"
             ></note-card>
             <button v-if="canAddCard(column)" @click="$emit('add-card', column)">Добавить карточку</button>
@@ -108,7 +112,6 @@ Vue.component('note-app', {
             const newCard = {
                 id: this.nextCardId++, // Увеличиваем ID для новой карточки
                 title: `Карточка ${this.nextCardId}`, // Заголовок карточки
-                color: '#f9f9f9', // Цвет по умолчанию
                 items: [
                     { text: 'Пункт 1', completed: false },
                     { text: 'Пункт 2', completed: false },
@@ -156,6 +159,7 @@ Vue.component('note-app', {
                     v-for="(column, index) in columns"
                     :key="index"
                     :column="column"
+                    :index="index"
                     @update-card="updateCard"
                     @add-card="addCard"
                 ></note-column>
