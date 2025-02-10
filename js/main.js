@@ -1,3 +1,4 @@
+// Компонент карточки заметки
 Vue.component('note-card', {
     props: ['card', 'isSecondColumn', 'secondColumnCardCount'],
     template: `
@@ -21,14 +22,17 @@ Vue.component('note-card', {
         };
     },
     computed: {
+        // Вычисляемое свойство для подсчета количества пунктов в карточке
         itemCount() {
             return this.card.items.length; // Количество пунктов в карточке
         }
     },
     methods: {
+        // Метод для обновления состояния карточки
         updateCard() {
-            this.$emit('update-card', this.card);
+            this.$emit('update-card', this.card); // Эмитируем событие обновления карточки
         },
+        // Метод для добавления нового пункта в список
         addItem() {
             if (this.newItemText.trim() !== '' && this.itemCount < 5) {
                 this.card.items.push({ text: this.newItemText, completed: false }); // Добавляем новый пункт
@@ -39,6 +43,7 @@ Vue.component('note-card', {
     }
 });
 
+// Компонент колонки заметок
 Vue.component('note-column', {
     props: ['column'],
     template: `
@@ -56,18 +61,21 @@ Vue.component('note-column', {
         </div>
     `,
     methods: {
+        // Метод для проверки, можно ли добавить новую карточку в колонку
         canAddCard(column) {
-            if (column.title === 'Столбец 1' && column.cards.length >= 3) return false;
-            if (column.title === 'Столбец 2' && column.cards.length >= 5) return false;
-            return true;
+            if (column.title === 'Столбец 1' && column.cards.length >= 3) return false; // Ограничение для первого столбца
+            if (column.title === 'Столбец 2' && column.cards.length >= 5) return false; // Ограничение для второго столбца
+            return true; // Если ограничения не нарушены, возвращаем true
         },
+        // Метод для получения количества карточек во втором столбце
         getSecondColumnCardCount() {
             const secondColumn = this.$parent.columns.find(col => col.title === 'Столбец 2');
-            return secondColumn ? secondColumn.cards.length : 0;
+            return secondColumn ? secondColumn.cards.length : 0; // Возвращаем количество карточек во втором столбце
         }
     }
 });
 
+// Основной компонент приложения заметок
 Vue.component('note-app', {
     data() {
         return {
@@ -76,23 +84,26 @@ Vue.component('note-app', {
                 { title: 'Столбец 2', cards: [] },
                 { title: 'Столбец 3', cards: [] }
             ],
-            nextCardId: 1
+            nextCardId: 1 // Идентификатор для следующей карточки
         };
     },
     created() {
-        this.loadCards();
+        this.loadCards(); // Загружаем карточки из localStorage при создании компонента
     },
     methods: {
+        // Метод для загрузки карточек из localStorage
         loadCards() {
             const savedData = JSON.parse(localStorage.getItem('cards'));
             if (savedData) {
-                this.columns = savedData.columns;
-                this.nextCardId = savedData.nextCardId;
+                this.columns = savedData.columns; // Загружаем колонки
+                this.nextCardId = savedData.nextCardId; // Загружаем следующий ID карточки
             }
         },
+        // Метод для сохранения карточек в localStorage
         saveCards() {
             localStorage.setItem('cards', JSON.stringify({ columns: this.columns, nextCardId: this.nextCardId }));
         },
+        // Метод для добавления новой карточки в колонку
         addCard(column) {
             const newCard = {
                 id: this.nextCardId++, // Увеличиваем ID для новой карточки
@@ -108,6 +119,7 @@ Vue.component('note-app', {
             column.cards.push(newCard); // Добавляем новую карточку в колонку
             this.saveCards(); // Сохраняем изменения в localStorage
         },
+        // Метод для обновления состояния карточки
         updateCard(card) {
             const completedItems = card.items.filter(item => item.completed).length; // Считаем завершенные пункты
             const totalItems = card.items.length; // Общее количество пунктов
@@ -115,6 +127,7 @@ Vue.component('note-app', {
             if (totalItems > 0) {
                 const completionRate = completedItems / totalItems; // Рассчитываем процент завершения
 
+                // Перемещение карточки в другой столбец в зависимости от процента завершения
                 if (completionRate > 0.5 && this.columns[0].cards.includes(card)) {
                     this.moveCard(card, 1); // Перемещение во второй столбец
                 } else if (completionRate === 1 && this.columns[1].cards.includes(card)) {
@@ -124,6 +137,7 @@ Vue.component('note-app', {
             }
             this.saveCards(); // Сохраняем изменения в localStorage
         },
+        // Метод для перемещения карточки между столбцами
         moveCard(card, targetColumnIndex) {
             for (let column of this.columns) {
                 const index = column.cards.findIndex(c => c.id === card.id); // Находим индекс карточки
