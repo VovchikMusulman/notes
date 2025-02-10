@@ -11,7 +11,6 @@ Vue.component('note-card', {
             </ul>
             <input type="text" v-model="newItemText" placeholder="Новый пункт списка" />
             <button @click="addItem" :disabled="itemCount >= 5">Добавить пункт</button>
-            <button @click="removeCard(card.id)">Удалить</button>
             <input type="color" v-model="card.color" />
             <p v-if="card.completedDate">Завершено: {{ card.completedDate }}</p>
         </div>
@@ -27,9 +26,6 @@ Vue.component('note-card', {
         }
     },
     methods: {
-        removeCard(cardId) {
-            this.$emit('remove-card', cardId);
-        },
         updateCard() {
             this.$emit('update-card', this.card);
         },
@@ -54,7 +50,6 @@ Vue.component('note-column', {
                 :card="card"
                 :isSecondColumn="column.title === 'Столбец 2'"
                 :secondColumnCardCount="getSecondColumnCardCount()"
-                @remove-card="$emit('remove-card', $event)"
                 @update-card="$emit('update-card', $event)"
             ></note-card>
             <button v-if="canAddCard(column)" @click="$emit('add-card', column)">Добавить карточку</button>
@@ -113,16 +108,6 @@ Vue.component('note-app', {
             column.cards.push(newCard); // Добавляем новую карточку в колонку
             this.saveCards(); // Сохраняем изменения в localStorage
         },
-        removeCard(cardId) {
-            for (let column of this.columns) {
-                const index = column.cards.findIndex(card => card.id === cardId); // Находим индекс карточки
-                if (index !== -1) {
-                    column.cards.splice(index, 1); // Удаляем карточку из колонки
-                    this.saveCards(); // Сохраняем изменения в localStorage
-                    break; // Выходим из цикла после удаления
-                }
-            }
-        },
         updateCard(card) {
             const completedItems = card.items.filter(item => item.completed).length; // Считаем завершенные пункты
             const totalItems = card.items.length; // Общее количество пунктов
@@ -157,7 +142,6 @@ Vue.component('note-app', {
                     v-for="(column, index) in columns"
                     :key="index"
                     :column="column"
-                    @remove-card="removeCard"
                     @update-card="updateCard"
                     @add-card="addCard"
                 ></note-column>
